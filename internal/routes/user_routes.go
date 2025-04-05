@@ -7,7 +7,7 @@ import (
 )
 
 func SetupUserRoutes(router *gin.Engine) {
-	userGroup := router.Group("/users")
+	userGroup := router.Group("/user")
 	{
 		userGroup.GET("", handlers.GetUsers)
 	}

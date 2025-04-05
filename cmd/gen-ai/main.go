@@ -12,7 +12,7 @@ import (
 )
 
 type Question struct {
-	QuestionText  string   `json:"Question"` // Field name matches "Question" in schema
+	QuestionText  string   `json:"QuestionText"`
 	Options       []string `json:"Options"`
 	CorrectAnswer int      `json:"CorrectAnswer"`
 }
@@ -27,10 +27,9 @@ type Lesson struct {
 
 // LessonPlan represents the overall structure of the response.
 type LessonPlan struct {
-	Message              string   `json:"Message"`                        // Should be "success" or "error"
-	RelevantErrorMessage *string  `json:"RelevantErrorMessage,omitempty"` // Pointer for nullable string
-	MainTitle            string   `json:"MainTitle"`
-	Lessons              []Lesson `json:"Lessons"`
+	Message   string   `json:"Message"`
+	MainTitle string   `json:"MainTitle"`
+	Lessons   []Lesson `json:"Lessons"`
 }
 
 func main() {
@@ -47,94 +46,46 @@ func main() {
 
 	model.ResponseMIMEType = "application/json"
 
-	model.ResponseSchema = &genai.Schema{
-		// Required: []string{"Message, MainTitle, Lessons"},
-		Type: genai.TypeObject,
-		Properties: map[string]*genai.Schema{
-			"Message": {
-				Type: genai.TypeString,
-				Enum: []string{"success", "error"},
-			},
-			"RelevantErrorMessage": {
-				Type:        genai.TypeString,
-				Nullable:    true,
-				Description: "To indicate the reason for error",
-			},
-			"MainTitle": {
-				Type: genai.TypeString,
-			},
-			"Lessons": {
-				Nullable: false,
-				Type:     genai.TypeArray,
-				Items: &genai.Schema{
-					Type: genai.TypeObject,
-					Properties: map[string]*genai.Schema{
-						"Title": {Type: genai.TypeString},
-						"Objectives": {
-							Type: genai.TypeArray,
-							Items: &genai.Schema{
-								Type:        genai.TypeString,
-								Description: "A learning objective for the lesson",
-							},
-							Description: "A list of learning objectives for the lesson",
-						},
-						"Content": {
-							Type: genai.TypeArray,
-							Items: &genai.Schema{
-								Type:        genai.TypeString,
-								Description: "A paragraph of content for the lesson",
-							},
-							Description: "A list of paragraphs of content for the lesson",
-						},
-						"Questions": {
-							Type: genai.TypeArray,
-							Items: &genai.Schema{
-								Type: genai.TypeObject,
-								Properties: map[string]*genai.Schema{
-									"Question": {
-										Type:        genai.TypeString,
-										Description: "The text of the question.",
-									},
-									"Options": {
-										Type: genai.TypeArray,
-										Items: &genai.Schema{
-											Type: genai.TypeString,
-										},
-									},
-									"CorrectAnswer": {
-										Type: genai.TypeInteger,
-									},
-								}, // Question Items Properties
-							}, // Question Items
-							Description: "A list of questions for the lesson.",
-						}, // Questions
-					}, // Items Properties
-				}, // Lesson Items
-			}, // Lessons
-		}, // Base Properties
-	}
-
 	userContent :=
 		`
 		The Euclidean algorithm is a method for finding the greatest common divisor (GCD) of two integers. The GCD of two numbers is the largest positive integer that divides both numbers without leaving a remainder. The algorithm is based on the principle that the GCD of two numbers also divides their difference.
 
 `
 
-	prompt := fmt.Sprintf(
-		`You are an expert educator. Create a structured learning plan based on the following text. Make sure the content is educational only. If it contains wrong information or inappropriate content respond with an error message. Refer to the response format.
+	prompt := fmt.Sprintf(`
+You are an expert educator. Create a structured learning plan based on the following text. Make sure the content is educational only. If it contains wrong information or inappropriate content respond with an error message. Refer to the response format.
 
 Content: %s
 
-Generate a lesson plan using the provided JSON schema. You MUST include at least one lesson in the 'Lessons' array.
+Generate the main title for the content. title should be under 64 characters, preferrably a short one.
+
+Generate 1 to 5 lessons based on the content length with the following structure:
     1. A title for the lesson (less than 64 characters)
-    2. Key learning objectives (2-4 bullet points)
+    2. Key learning objectives (2-4 bullet points) Do not include semicolon ";" character in the objectives
     3. Main content (2-3 paragraphs explaining the key concepts)
     4. 3 practice questions with answers
 
-Generate the main title for the content. title should be under 64 characters, preferrably a short one.
+Format the response as a JSON including a message and array of lesson objects with the following structure: The message is "success" | "error: insufficient content" | "error: <relevant error message>"
+{
+    "Message": message,
+    "MainTitle": <MAIN_TITLE>,
+    "Lessons": [
+      {
+        "Title": "Lesson title",
+        "Objectives": ["objective 1", "objective 2", "objective 3"],
+        "Content": ["paragraph 1", "paragraph 2"],
+        "Questions": [
+          {
+            "QuestionText": "Question text",
+            "Options": ["option A", "option B", "option C", "option D"],
+            "CorrectAnswer": 0
+          }
+        ]
+      }
+    ]
+}
 Make sure the content is educational, engaging, and follows a logical progression.
-`,
-		userContent)
+		`, userContent)
 
 	resp, err := model.GenerateContent(ctx, genai.Text(prompt))
 	if err != nil {
@@ -171,8 +122,8 @@ Make sure the content is educational, engaging, and follows a logical progressio
 			// You can now access the data directly via the struct fields:
 			fmt.Printf("\nAccessing data directly:\n")
 			fmt.Printf("  Message: %s\n", plan.Message)
-			if plan.Message == "error" && plan.RelevantErrorMessage != nil {
-				fmt.Printf("  Error Message: %s\n", *plan.RelevantErrorMessage)
+			if plan.Message != "success" {
+				fmt.Printf("  Error Message: %s\n", plan.Message)
 			}
 			fmt.Printf("  Main Title: %s\n", plan.MainTitle)
 			if len(plan.Lessons) > 0 {

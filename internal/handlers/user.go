@@ -11,7 +11,7 @@ import (
 func GetUsers(c *gin.Context) {
 	users, err := services.GetAllUsers()
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 	}
 	c.IndentedJSON(http.StatusOK, users)

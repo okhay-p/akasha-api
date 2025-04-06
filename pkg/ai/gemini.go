@@ -17,7 +17,7 @@ func InitGeminiModel(cfg config.Config) {
 	apiKey := cfg.GeminiApiKey
 	client, err := genai.NewClient(Ctx, option.WithAPIKey(apiKey))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 	}
 
 	GeminiModel = client.GenerativeModel("gemini-2.0-flash")

@@ -6,6 +6,7 @@ import (
 	"akasha-api/pkg/ai"
 	"akasha-api/pkg/config"
 	"akasha-api/pkg/db"
+	"akasha-api/pkg/jwt"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -16,10 +17,12 @@ func main() {
 	cfg := config.LoadConfig()
 	db.InitDB(cfg)
 	ai.InitGeminiModel(cfg)
+	jwt.SetSecret(cfg)
 
 	router := gin.Default()
 	router.Use(middlewares.CORSMiddleware())
 	routes.SetupRouter(router)
+	router.Use(middlewares.AuthMiddleware())
 	routes.SetupUserRoutes(router)
 	routes.SetupTopicRoutes(router)
 

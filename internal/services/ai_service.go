@@ -42,13 +42,15 @@ You are an expert educator. Create a structured learning plan based on the follo
 
 Content: %s
 
-Generate the main title for the content. title should be under 64 characters, preferrably a short one.
+Generate the main title for the content. preferrably a short title under 32 characters, hard limit is 64 characters.
 
-Generate 1 to 5 lessons based on the content length with the following structure:
+Generate 3 to 5 lessons based on the content length with the following structure: The lessons should be focused more on the theory aspect of the content.
     1. A title for the lesson (less than 64 characters)
     2. Key learning objectives (2-4 bullet points)
     3. Main content (2-3 paragraphs explaining the key concepts)
     4. 3 practice questions with answers. Questions can be multiple choice or True/False
+
+
 
 Format the response as a JSON including a message and array of lesson objects with the following structure: The message is "success" | "error: insufficient content" | "error: <relevant error message>"
 {
@@ -74,12 +76,12 @@ Make sure the content is educational, engaging, and follows a logical progressio
 
 	resp, err := ai.GeminiModel.GenerateContent(ai.Ctx, genai.Text(prompt))
 	if err != nil {
-		log.Fatal(err)
+		log.Println(err)
 		return plan, err
 	}
 
 	if resp == nil || len(resp.Candidates) == 0 || resp.Candidates[0].Content == nil || len(resp.Candidates[0].Content.Parts) == 0 {
-		log.Fatal("Received an empty or invalid response from the API.")
+		log.Println("Received an empty or invalid response from the API.")
 		return plan, err
 	}
 
@@ -91,7 +93,7 @@ Make sure the content is educational, engaging, and follows a logical progressio
 
 			// Unmarshal the JSON text into our Go struct
 			if err := json.Unmarshal([]byte(txt), &plan); err != nil {
-				log.Fatalf("Error unmarshalling JSON: %v\nRaw Text: %s", err, string(txt))
+				log.Printf("Error unmarshalling JSON: %v\nRaw Text: %s", err, string(txt))
 				return plan, err
 			}
 

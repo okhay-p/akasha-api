@@ -7,5 +7,6 @@ import (
 )
 
 func GetAPIStatus(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "API is up and running 🥳"})
+
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "What's up, nerd 🤓"})
 }

@@ -12,13 +12,13 @@ const TableNameAlUser = "al_user"
 
 // AlUser mapped from table <al_user>
 type AlUser struct {
-	ID          string    `gorm:"column:id;primaryKey" json:"id"`
+	ID          string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Username    string    `gorm:"column:username" json:"username"`
 	Fullname    string    `gorm:"column:fullname" json:"fullname"`
 	GoogleSubID string    `gorm:"column:google_sub_id;not null" json:"google_sub_id"`
 	PictureURL  string    `gorm:"column:picture_url" json:"picture_url"`
 	Email       string    `gorm:"column:email;not null" json:"email"`
-	CreatedAt   time.Time `gorm:"column:created_at;not null" json:"created_at"`
+	CreatedAt   time.Time `gorm:"column:created_at;default:now()" json:"created_at"`
 	Status      int32     `gorm:"column:status" json:"status"`
 }
 

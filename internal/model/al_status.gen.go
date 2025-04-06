@@ -8,7 +8,7 @@ const TableNameAlStatus = "al_status"
 
 // AlStatus mapped from table <al_status>
 type AlStatus struct {
-	ID   int32  `gorm:"column:id;primaryKey" json:"id"`
+	ID   int32  `gorm:"column:id;primaryKey;autoIncrement:true" json:"id"`
 	Name string `gorm:"column:name" json:"name"`
 }
 

@@ -12,12 +12,12 @@ const TableNameAlTopic = "al_topic"
 
 // AlTopic mapped from table <al_topic>
 type AlTopic struct {
-	ID        string    `gorm:"column:id;primaryKey" json:"id"`
+	ID        string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Title     string    `gorm:"column:title;not null" json:"title"`
 	IsPublic  bool      `gorm:"column:is_public;not null" json:"is_public"`
 	Emoji     string    `gorm:"column:emoji;not null" json:"emoji"`
-	CreatedAt time.Time `gorm:"column:created_at;not null" json:"created_at"`
-	UpdatedAt time.Time `gorm:"column:updated_at" json:"updated_at"`
+	CreatedAt time.Time `gorm:"column:created_at;default:now()" json:"created_at"`
+	UpdatedAt time.Time `gorm:"column:updated_at;default:now()" json:"updated_at"`
 	CreatedBy string    `gorm:"column:created_by" json:"created_by"`
 	StatusID  int32     `gorm:"column:status_id" json:"status_id"`
 }

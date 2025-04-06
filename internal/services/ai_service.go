@@ -28,6 +28,7 @@ type Lesson struct {
 type LessonPlan struct {
 	Message   string   `json:"Message"`
 	MainTitle string   `json:"MainTitle"`
+	Emoji     string   `json: "Emoji"`
 	Lessons   []Lesson `json:"Lessons"`
 }
 
@@ -44,6 +45,8 @@ Content: %s
 
 Generate the main title for the content. preferrably a short title under 32 characters, hard limit is 64 characters.
 
+Give me an emoji that is related to the main title of the content. Give me the UTF-8 code of the emoji
+
 Generate 3 to 5 lessons based on the content length with the following structure: The lessons should be focused more on the theory aspect of the content.
     1. A title for the lesson (less than 64 characters)
     2. Key learning objectives (2-4 bullet points)
@@ -55,6 +58,7 @@ Generate 3 to 5 lessons based on the content length with the following structure
 Format the response as a JSON including a message and array of lesson objects with the following structure: The message is "success" | "error: insufficient content" | "error: <relevant error message>"
 {
     "Message": message,
+    "Emoji" : <UTF-8>,
     "MainTitle": <MAIN_TITLE>,
     "Lessons": [
       {

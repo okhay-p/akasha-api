@@ -4,15 +4,17 @@
 
 package model
 
+import "github.com/lib/pq"
+
 const TableNameAlLesson = "al_lesson"
 
 // AlLesson mapped from table <al_lesson>
 type AlLesson struct {
-	ID          string `gorm:"column:id;primaryKey" json:"id"`
+	ID          string `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	TopicID     string `gorm:"column:topic_id" json:"topic_id"`
 	Title       string `gorm:"column:title;not null" json:"title"`
-	Objectives  string `gorm:"column:objectives" json:"objectives"`
-	Content     string `gorm:"column:content" json:"content"`
+	Objectives  pq.StringArray `gorm:"column:objectives;type:text[]" json:"objectives"`
+	Content     pq.StringArray `gorm:"column:content;type:text[]" json:"content"`
 	OrderNumber int32  `gorm:"column:order_number;not null" json:"order_number"`
 }
 

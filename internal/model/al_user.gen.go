@@ -6,13 +6,15 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const TableNameAlUser = "al_user"
 
 // AlUser mapped from table <al_user>
 type AlUser struct {
-	ID          string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID          uuid.UUID    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Username    string    `gorm:"column:username" json:"username"`
 	Fullname    string    `gorm:"column:fullname" json:"fullname"`
 	GoogleSubID string    `gorm:"column:google_sub_id;not null" json:"google_sub_id"`

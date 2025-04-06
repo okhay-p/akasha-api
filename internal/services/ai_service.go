@@ -28,7 +28,7 @@ type Lesson struct {
 type LessonPlan struct {
 	Message   string   `json:"Message"`
 	MainTitle string   `json:"MainTitle"`
-	Emoji     string   `json: "Emoji"`
+	Emoji     string   `json:"Emoji"`
 	Lessons   []Lesson `json:"Lessons"`
 }
 

@@ -4,13 +4,15 @@
 
 package model
 
+import "github.com/google/uuid"
+
 const TableNameAlUserTopicProgress = "al_user_topic_progress"
 
 // AlUserTopicProgress mapped from table <al_user_topic_progress>
 type AlUserTopicProgress struct {
-	ID            string `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
-	TopicID       string `gorm:"column:topic_id" json:"topic_id"`
-	UserID        string `gorm:"column:user_id" json:"user_id"`
+	ID            uuid.UUID `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	TopicID       uuid.UUID `gorm:"column:topic_id" json:"topic_id"`
+	UserID        uuid.UUID `gorm:"column:user_id" json:"user_id"`
 	CurrentSeason int32  `gorm:"column:current_season" json:"current_season"`
 	MaxLesson     int32  `gorm:"column:max_lesson" json:"max_lesson"`
 }

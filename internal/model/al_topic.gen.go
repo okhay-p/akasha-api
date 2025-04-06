@@ -6,13 +6,15 @@ package model
 
 import (
 	"time"
+
+	"github.com/google/uuid"
 )
 
 const TableNameAlTopic = "al_topic"
 
 // AlTopic mapped from table <al_topic>
 type AlTopic struct {
-	ID        string    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	ID        uuid.UUID    `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	Title     string    `gorm:"column:title;not null" json:"title"`
 	IsPublic  bool      `gorm:"column:is_public;not null" json:"is_public"`
 	Emoji     string    `gorm:"column:emoji;not null" json:"emoji"`

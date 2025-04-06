@@ -4,14 +4,17 @@
 
 package model
 
-import "github.com/lib/pq"
+import (
+	"github.com/google/uuid"
+	"github.com/lib/pq"
+)
 
 const TableNameAlLesson = "al_lesson"
 
 // AlLesson mapped from table <al_lesson>
 type AlLesson struct {
-	ID          string `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
-	TopicID     string `gorm:"column:topic_id" json:"topic_id"`
+	ID          uuid.UUID `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
+	TopicID     uuid.UUID `gorm:"column:topic_id" json:"topic_id"`
 	Title       string `gorm:"column:title;not null" json:"title"`
 	Objectives  pq.StringArray `gorm:"column:objectives;type:text[]" json:"objectives"`
 	Content     pq.StringArray `gorm:"column:content;type:text[]" json:"content"`

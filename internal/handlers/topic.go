@@ -7,6 +7,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type inputContent struct {
@@ -26,7 +28,6 @@ func CreateTopic(c *gin.Context) {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
-		return
 	}
 
 	// Get lesson plan from AI
@@ -35,7 +36,6 @@ func CreateTopic(c *gin.Context) {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
-		return
 	}
 
 	// Store the topic in DB
@@ -53,7 +53,6 @@ func CreateTopic(c *gin.Context) {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
-		return
 	}
 
 	// Iterate over lessons and store each lesson
@@ -71,11 +70,9 @@ func CreateTopic(c *gin.Context) {
 			log.Println(err)
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 			c.Abort()
-			return
+
 		}
 
-		// Iterate over questions of each lesson
-		log.Println(lessonId)
 		for ii, q := range l.Questions {
 
 			var question model.AlQuestion
@@ -92,7 +89,7 @@ func CreateTopic(c *gin.Context) {
 				log.Println(err)
 				c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 				c.Abort()
-				return
+
 			}
 
 		}
@@ -101,4 +98,28 @@ func CreateTopic(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, gin.H{"message": topicId})
 
+}
+
+func GetTopicByUUID(c *gin.Context) {
+
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		log.Println(c.Param("id"))
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+	}
+
+	topic, err := services.GetTopicByUUID(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.Status(http.StatusNotFound)
+			c.Abort()
+
+		}
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+	}
+
+	c.IndentedJSON(http.StatusOK, topic)
 }

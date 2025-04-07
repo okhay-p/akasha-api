@@ -20,7 +20,11 @@ func CreateTopic(c *gin.Context) {
 
 	if !ok {
 		log.Println("user_id not found")
+		c.Abort()
+		return
 	}
+
+	uuid, err := uuid.Parse(user_id.(string))
 
 	// TODO: Might need validation
 	var newInput inputContent
@@ -28,6 +32,7 @@ func CreateTopic(c *gin.Context) {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
+		return
 	}
 
 	// Get lesson plan from AI
@@ -36,14 +41,18 @@ func CreateTopic(c *gin.Context) {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
+		return
 	}
+
+	// Get username from uuid
+	user, err := services.GetUserByUUID(uuid)
 
 	// Store the topic in DB
 	var topic model.AlTopic
 
 	topic.Title = lessonPlan.MainTitle
 	topic.Emoji = lessonPlan.Emoji
-	topic.CreatedBy = user_id.(string)
+	topic.CreatedBy = user.Username
 	topic.IsPublic = true
 	topic.StatusID = 1
 
@@ -53,6 +62,7 @@ func CreateTopic(c *gin.Context) {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
+		return
 	}
 
 	// Iterate over lessons and store each lesson
@@ -70,6 +80,7 @@ func CreateTopic(c *gin.Context) {
 			log.Println(err)
 			c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 			c.Abort()
+			return
 
 		}
 
@@ -89,6 +100,7 @@ func CreateTopic(c *gin.Context) {
 				log.Println(err)
 				c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 				c.Abort()
+				return
 
 			}
 
@@ -108,6 +120,7 @@ func GetTopicByUUID(c *gin.Context) {
 		log.Println(err)
 		c.Status(http.StatusInternalServerError)
 		c.Abort()
+		return
 	}
 
 	topic, err := services.GetTopicByUUID(id)
@@ -115,10 +128,38 @@ func GetTopicByUUID(c *gin.Context) {
 		if err == gorm.ErrRecordNotFound {
 			c.Status(http.StatusNotFound)
 			c.Abort()
+			return
 
 		}
 		c.Status(http.StatusInternalServerError)
 		c.Abort()
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, topic)
+}
+
+func GetFullTopicDetails(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		log.Println(c.Param("id"))
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	topic, err := services.GetTopicFullDetailsByUUID(id)
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.Status(http.StatusNotFound)
+			c.Abort()
+			return
+
+		}
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
 	}
 
 	c.IndentedJSON(http.StatusOK, topic)

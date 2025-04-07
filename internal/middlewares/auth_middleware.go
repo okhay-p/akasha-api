@@ -15,14 +15,16 @@ func AuthMiddleware() gin.HandlerFunc {
 			authHeader := c.GetHeader("Authorization")
 			if len(authHeader) < 7 {
 				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-				c.Abort()
+
+				return
 
 			}
 			token := authHeader[7:]
 			claims, err := jwt.VerifyToken(token)
 			if err != nil {
 				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-				c.Abort()
+
+				return
 
 			}
 			c.Set("UUID", claims.Subject)

@@ -8,6 +8,7 @@ import (
 	"akasha-api/pkg/db"
 	"akasha-api/pkg/jwt"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -29,7 +30,12 @@ func main() {
 	routes.SetupTopicRoutes(router)
 	routes.SetupQuestionRoutes(router)
 
-	if err := router.Run("localhost:8080"); err != nil {
-		log.Fatal(err)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+	if err := router.Run(":" + port); err != nil {
+		log.Panicf("error: %s", err)
+	}
+
 }

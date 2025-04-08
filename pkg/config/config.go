@@ -1,10 +1,7 @@
 package config
 
 import (
-	"log"
 	"os"
-
-	"github.com/joho/godotenv"
 )
 
 var AkashaLearnUUID string
@@ -18,10 +15,6 @@ type Config struct {
 }
 
 func LoadConfig() Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error loading .env file")
-	}
 
 	AkashaLearnUUID = getEnv("AKASHALEARN_UUID", "")
 	Dev = getEnv("DEV", "") == "true"

@@ -20,6 +20,7 @@ func main() {
 	jwt.SetSecret(cfg)
 
 	router := gin.Default()
+	router.SetTrustedProxies([]string{})
 	router.Use(middlewares.CORSMiddleware())
 	routes.SetupRouter(router)
 

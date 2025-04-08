@@ -14,7 +14,6 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		if config.Dev {
 			authHeader := c.GetHeader("Authorization")
-			log.Println("AuthHeader:", authHeader)
 			if len(authHeader) < 7 {
 				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 				c.Abort()

@@ -5,6 +5,7 @@ import (
 	"akasha-api/internal/services"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -38,7 +39,13 @@ func CreateTopic(c *gin.Context) {
 	// Get lesson plan from AI
 	lessonPlan, err := services.GenerateLessonPlan(newInput.Content)
 	if err != nil {
-		log.Println(err)
+
+		if len(err.Error()) > 11 && err.Error()[:9] == "req_error" {
+			c.IndentedJSON(http.StatusBadRequest, gin.H{"message": err.Error()[11:]})
+			c.Abort()
+			return
+		}
+
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
 		return
@@ -109,6 +116,91 @@ func CreateTopic(c *gin.Context) {
 	}
 
 	c.IndentedJSON(http.StatusOK, gin.H{"message": topicId})
+
+}
+
+func FirstOrCreateTopicProgress(c *gin.Context) {
+	id, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		log.Println(c.Param("id"))
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	user_id, ok := c.Get("UUID")
+
+	if !ok {
+		log.Println("user_id not found")
+		c.Abort()
+		return
+	}
+
+	uId, err := uuid.Parse(user_id.(string))
+
+	var prg model.AlUserTopicProgress
+
+	prg.TopicID = id
+	prg.UserID = uId
+	prg.CurrentLesson = 0
+
+	res, err := services.GetOrInsertTopicProgress(&prg)
+	c.IndentedJSON(http.StatusOK, res)
+}
+
+func UpdateTopicProgressCurrentLesson(c *gin.Context) {
+
+	id, err := uuid.Parse(c.Param("id"))
+	order, err := strconv.Atoi(c.Param("order"))
+	if err != nil {
+		log.Println(c.Param("id"))
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	user_id, ok := c.Get("UUID")
+
+	if !ok {
+		log.Println("user_id not found")
+		c.Abort()
+		return
+	}
+
+	uId, err := uuid.Parse(user_id.(string))
+	prg, err := services.GetTopicProgress(uId, id)
+
+	if err == gorm.ErrRecordNotFound {
+		c.Status(http.StatusNotFound)
+		c.Abort()
+		return
+	}
+
+	err = services.UpdateTopicProgress(&prg, int32(order)+1)
+	if err != nil {
+
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+
+}
+
+func GetTopicsL1(c *gin.Context) {
+	topics, err := services.GetAllTopics()
+
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, topics)
 
 }
 

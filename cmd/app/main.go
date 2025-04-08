@@ -22,9 +22,11 @@ func main() {
 	router := gin.Default()
 	router.Use(middlewares.CORSMiddleware())
 	routes.SetupRouter(router)
+
 	router.Use(middlewares.AuthMiddleware())
 	routes.SetupUserRoutes(router)
 	routes.SetupTopicRoutes(router)
+	routes.SetupQuestionRoutes(router)
 
 	if err := router.Run("localhost:8080"); err != nil {
 		log.Fatal(err)

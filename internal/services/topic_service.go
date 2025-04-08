@@ -31,6 +31,40 @@ func InsertQuestion(question *model.AlQuestion) (uuid.UUID, error) {
 	return question.ID, nil
 }
 
+func GetOrInsertTopicProgress(prg *model.AlUserTopicProgress) (model.AlUserTopicProgress, error) {
+	var res model.AlUserTopicProgress
+
+	if err := db.DB.FirstOrCreate(&res, model.AlUserTopicProgress{TopicID: prg.TopicID, UserID: prg.UserID}).Error; err != nil {
+		return res, err
+	}
+
+	// db.DB.Create(prg)
+
+	return res, nil
+}
+
+func GetTopicProgress(uid uuid.UUID, tid uuid.UUID) (model.AlUserTopicProgress, error) {
+	var progress model.AlUserTopicProgress
+
+	err := db.DB.Where("user_id = ? AND topic_id = ?", uid, tid).First(&progress).Error
+
+	return progress, err
+}
+
+func UpdateTopicProgress(prg *model.AlUserTopicProgress, newLesson int32) error {
+	return db.DB.Model(prg).Update("current_lesson", newLesson).Error
+}
+
+func GetAllTopics() ([]model.AlTopic, error) {
+	var topics []model.AlTopic
+
+	if err := db.DB.Find(&topics).Error; err != nil {
+		return topics, err
+	}
+
+	return topics, nil
+}
+
 func GetTopicByUUID(uuid uuid.UUID) (model.AlTopic, error) {
 	var topic model.AlTopic
 

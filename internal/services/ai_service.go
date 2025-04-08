@@ -39,7 +39,7 @@ func GenerateLessonPlan(userContent string) (LessonPlan, error) {
 	ai.GeminiModel.ResponseMIMEType = "application/json"
 
 	prompt := fmt.Sprintf(`
-You are an expert educator. Create a structured learning plan based on the following text. Make sure the content is educational only. If it contains wrong information or inappropriate content respond with an error message. Refer to the response format.
+You are an expert educator. Create a structured learning plan based on the following text. Make sure the content is educational only. If it contains wrong information or inappropriate content respond with a short error message. The error message should be in a fun and informal tone, include emojis and last than 20 words. Refer to the response format.
 
 Content: %s
 
@@ -55,7 +55,7 @@ Generate 3 to 5 lessons based on the content length with the following structure
 
 
 
-Format the response as a JSON including a message and array of lesson objects with the following structure: The message is "success" | "error: insufficient content" | "error: <relevant error message>"
+Format the response as a JSON including a message and array of lesson objects with the following structure: The message is "success" | "req_error: <relevant error message>"
 {
     "Message": message,
     "Emoji" : <UTF-8>,
@@ -92,8 +92,6 @@ Make sure the content is educational, engaging, and follows a logical progressio
 	// Iterate through parts (usually only one for JSON mode)
 	for _, part := range resp.Candidates[0].Content.Parts {
 		if txt, ok := part.(genai.Text); ok {
-			fmt.Println("\nRaw JSON Response:")
-			fmt.Println(string(txt)) // Print raw JSON text
 
 			// Unmarshal the JSON text into our Go struct
 			if err := json.Unmarshal([]byte(txt), &plan); err != nil {
@@ -101,9 +99,8 @@ Make sure the content is educational, engaging, and follows a logical progressio
 				return plan, err
 			}
 
-			fmt.Printf("\nAccessing data directly:\n")
-			fmt.Printf("  Message: %s\n", plan.Message)
 			if plan.Message != "success" {
+				fmt.Println(userContent)
 				fmt.Printf("  Error Message: %s\n", plan.Message)
 				return plan, errors.New(plan.Message)
 			}

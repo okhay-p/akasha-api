@@ -15,6 +15,7 @@ func HandleLogin(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		c.Abort()
 		return
 	}
 

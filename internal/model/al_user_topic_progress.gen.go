@@ -13,8 +13,7 @@ type AlUserTopicProgress struct {
 	ID            uuid.UUID `gorm:"column:id;primaryKey;default:gen_random_uuid()" json:"id"`
 	TopicID       uuid.UUID `gorm:"column:topic_id" json:"topic_id"`
 	UserID        uuid.UUID `gorm:"column:user_id" json:"user_id"`
-	CurrentSeason int32  `gorm:"column:current_season" json:"current_season"`
-	MaxLesson     int32  `gorm:"column:max_lesson" json:"max_lesson"`
+	CurrentLesson int32  `gorm:"column:current_lesson" json:"current_lesson"`
 }
 
 // TableName AlUserTopicProgress's table name

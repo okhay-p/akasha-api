@@ -31,10 +31,14 @@ func main() {
 	routes.SetupQuestionRoutes(router)
 
 	port := os.Getenv("PORT")
+	host := os.Getenv("HOST")
+	if host == "" {
+		host = "localhost"
+	}
 	if port == "" {
 		port = "8080"
 	}
-	if err := router.Run(":" + port); err != nil {
+	if err := router.Run(host + ":" + port); err != nil {
 		log.Panicf("error: %s", err)
 	}
 

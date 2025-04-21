@@ -24,3 +24,19 @@ func GetUserByUUID(uuid uuid.UUID) (model.AlUser, error) {
 	}
 	return user, nil
 }
+
+func InsertNewUser(user *model.AlUser) (uuid.UUID, error) {
+	if err := db.DB.Create(user).Error; err != nil {
+		return uuid.Nil, err
+	}
+	return user.ID, nil
+}
+
+func GetUserUUIDByGoogleSub(sub string) (uuid.UUID, error) {
+	var user model.AlUser
+
+	if err := db.DB.First(&user, sub).Error; err != nil {
+		return user.ID, err
+	}
+	return user.ID, nil
+}

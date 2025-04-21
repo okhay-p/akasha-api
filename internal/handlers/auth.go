@@ -8,13 +8,17 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 
 	"akasha-api/internal/gothic"
+	"akasha-api/internal/model"
+	"akasha-api/internal/services"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/google"
+	"gorm.io/gorm"
 )
 
 const (
@@ -76,6 +80,32 @@ func HandleOAuthCallback(c *gin.Context) {
 	log.Println(user.Email)
 	log.Println(user.UserID)
 
+	userUUID, err := services.GetUserUUIDByGoogleSub(user.UserID)
+	if err != nil && err == gorm.ErrRecordNotFound {
+		var userB model.AlUser
+
+		userB.Email = user.Email
+		userB.GoogleSubID = user.UserID
+		userB.Username = strings.Split(user.Email, "@")[0]
+
+		userUUID, err = services.InsertNewUser(&userB)
+
+		if err != nil {
+			log.Println("Error:", err)
+		}
+	}
+	log.Println(userUUID)
+
+	token, err := jwt.CreateToken(userUUID.String())
+	if err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		c.Abort()
+		return
+	}
+
+	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetCookie("token", token, 86400, "/", ".akashalearn.org", true, true)
 	c.Redirect(http.StatusFound, "https://akashalearn.org/")
 }
 

@@ -228,8 +228,10 @@ func validateState(req *http.Request, sess goth.Session) error {
 	}
 
 	reqState := GetState(req)
+	fmt.Println("reqState:", reqState)
 
 	originalState := authURL.Query().Get("state")
+	fmt.Println("original state:", originalState)
 	if originalState != "" && (originalState != reqState) {
 		return errors.New("state token mismatch")
 	}

@@ -12,6 +12,11 @@ import (
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 
+		var (
+			token string
+			err   error
+		)
+
 		if config.Dev {
 			authHeader := c.GetHeader("Authorization")
 			if len(authHeader) < 7 {
@@ -20,17 +25,24 @@ func AuthMiddleware() gin.HandlerFunc {
 				return
 
 			}
-			token := authHeader[7:]
-			claims, err := jwt.VerifyToken(token)
+			token = authHeader[7:]
+		} else {
+			token, err = c.Cookie("token")
 			if err != nil {
-				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
-				log.Println(err)
+				log.Println("ERROR:", err)
 				c.Abort()
 				return
-
 			}
-			c.Set("UUID", claims.Subject)
 		}
+		claims, err := jwt.VerifyToken(token)
+		if err != nil {
+			c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
+			log.Println(err)
+			c.Abort()
+			return
+
+		}
+		c.Set("UUID", claims.Subject)
 
 		c.Next()
 	}

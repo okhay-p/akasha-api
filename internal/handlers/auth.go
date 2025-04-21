@@ -87,6 +87,7 @@ func HandleOAuthCallback(c *gin.Context) {
 		userB.Email = user.Email
 		userB.GoogleSubID = user.UserID
 		userB.Username = strings.Split(user.Email, "@")[0]
+		userB.Status = 1
 
 		userUUID, err = services.InsertNewUser(&userB)
 

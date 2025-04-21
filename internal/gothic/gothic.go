@@ -74,7 +74,7 @@ func BeginAuthHandler(res http.ResponseWriter, req *http.Request) {
 // If no state string is associated with the request, one will be generated.
 // This state is sent to the provider and can be retrieved during the
 // callback.
-var 2 = func(req *http.Request) string {
+var SetState = func(req *http.Request) string {
 	state := req.URL.Query().Get("state")
 	if len(state) > 0 {
 		return state

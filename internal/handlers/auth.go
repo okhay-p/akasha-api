@@ -131,6 +131,7 @@ func HandleOAuth(c *gin.Context) {
 
 func HandleOAuthLogout(c *gin.Context) {
 	gothic.Logout(c.Writer, c.Request)
+	c.SetCookie("token", "", -1, "/", ".akashalearn.org", true, true)
 	c.Writer.Header().Set("Location", "/")
 	c.Writer.WriteHeader(http.StatusTemporaryRedirect)
 }

@@ -20,7 +20,6 @@ import (
 const (
 	key    = "KFeiuh174yafbo33kfabab34knfaueh9r3ku8ef48dkbGWI"
 	MaxAge = 86400 * 30
-	IsProd = false
 )
 
 func NewAuth() {
@@ -32,7 +31,7 @@ func NewAuth() {
 
 	store.Options.Path = "/"
 	store.Options.HttpOnly = true
-	store.Options.Secure = IsProd
+	store.Options.Secure = os.Getenv("DEV") == "true"
 
 	gothic.Store = store
 

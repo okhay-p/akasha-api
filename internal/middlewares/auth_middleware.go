@@ -32,6 +32,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			log.Println("AUTHMID COOKIE:", token)
 			if err != nil {
 				log.Println("ERROR:", err)
+				c.Status(http.StatusBadRequest)
 				c.Abort()
 				return
 			}

@@ -30,6 +30,7 @@ func GetUserByUUID(c *gin.Context) {
 
 	uuid, _ := uuid.Parse(user_id.(string))
 
+	log.Println("GetUserByUUID:", uuid)
 	var user model.AlUser
 	var err error
 	user, err = services.GetUserByUUID(uuid)

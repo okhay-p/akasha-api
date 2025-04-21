@@ -106,7 +106,7 @@ func HandleOAuthCallback(c *gin.Context) {
 		return
 	}
 
-	c.SetSameSite(http.SameSiteStrictMode)
+	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", token, 86400, "/", ".akashalearn.org", true, true)
 	c.Redirect(http.StatusFound, "https://akashalearn.org/")
 }

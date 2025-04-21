@@ -1,6 +1,7 @@
 package main
 
 import (
+	"akasha-api/internal/handlers"
 	"akasha-api/internal/middlewares"
 	"akasha-api/internal/routes"
 	"akasha-api/pkg/ai"
@@ -19,6 +20,7 @@ func main() {
 	db.InitDB(cfg)
 	ai.InitGeminiModel(cfg)
 	jwt.SetSecret(cfg)
+	handlers.NewAuth()
 
 	router := gin.Default()
 	router.SetTrustedProxies([]string{})

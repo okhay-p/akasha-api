@@ -19,6 +19,7 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		if config.Dev {
 			authHeader := c.GetHeader("Authorization")
+			log.Println("AUTHMID HEADER:", authHeader)
 			if len(authHeader) < 7 {
 				c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "Unauthorized"})
 				c.Abort()
@@ -28,6 +29,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			token = authHeader[7:]
 		} else {
 			token, err = c.Cookie("token")
+			log.Println("AUTHMID COOKIE:", token)
 			if err != nil {
 				log.Println("ERROR:", err)
 				c.Abort()

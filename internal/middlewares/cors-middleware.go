@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"akasha-api/pkg/config"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -9,6 +10,8 @@ import (
 func CORSMiddleware() gin.HandlerFunc {
 
 	origin := config.FrontendUrl
+
+	log.Println(origin)
 
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", origin)

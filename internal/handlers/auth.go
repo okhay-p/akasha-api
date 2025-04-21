@@ -73,8 +73,8 @@ func HandleOAuthCallback(c *gin.Context) {
 		return
 	}
 	log.Println("Oauth callback:")
-	log.Println(user.Name)
-	fmt.Println(user)
+	log.Println(user.Email)
+	log.Println(user.UserID)
 
 	c.Redirect(http.StatusFound, "https://akashalearn.org/")
 }
@@ -89,7 +89,9 @@ func HandleOAuth(c *gin.Context) {
 
 	if gothUser, err := gothic.CompleteUserAuth(c.Writer, c.Request); err == nil {
 		log.Println("Oauth handler:")
-		log.Println(gothUser.Name)
+		log.Println(gothUser.Email)
+		log.Println(gothUser.UserID)
+
 	} else {
 		gothic.BeginAuthHandler(c.Writer, c.Request)
 	}

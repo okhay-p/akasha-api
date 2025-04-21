@@ -35,8 +35,8 @@ func InsertNewUser(user *model.AlUser) (uuid.UUID, error) {
 func GetUserUUIDByGoogleSub(sub string) (uuid.UUID, error) {
 	var user model.AlUser
 
-	if err := db.DB.First(&user, sub).Error; err != nil {
-		return user.ID, err
+	if err := db.DB.Where("google_sub_id = ?", sub).First(&user).Error; err != nil {
+		return uuid.Nil, err
 	}
 	return user.ID, nil
 }

@@ -47,6 +47,13 @@ func NewAuth() {
 }
 
 func HandleLogin(c *gin.Context) {
+	if !config.Dev {
+		c.Status(http.StatusUnauthorized)
+		c.Abort()
+		log.Printf("TRYING TO ACCESS DEV LOG IN ROUTE")
+		return
+	}
+
 	// TEMP LOG IN HANDLER MUST CHANGE AFTER GOOGLE OAUTH SETUP
 	token, err := jwt.CreateToken(config.AkashaLearnUUID)
 	if err != nil {
@@ -56,14 +63,7 @@ func HandleLogin(c *gin.Context) {
 		return
 	}
 
-	if config.Dev {
-		c.IndentedJSON(http.StatusOK, gin.H{"auth": token})
-		return
-	}
-	c.SetSameSite(http.SameSiteNoneMode)
-	c.SetCookie("test", "test", 300, "/", "localhost", false, false)
-	c.SetCookie("token", token, 86400, "/", "localhost", true, true)
-	c.IndentedJSON(http.StatusOK, gin.H{"auth": "success"})
+	c.IndentedJSON(http.StatusOK, gin.H{"auth": token})
 }
 
 func HandleOAuthCallback(c *gin.Context) {
@@ -113,6 +113,20 @@ func HandleOAuthCallback(c *gin.Context) {
 }
 
 func HandleOAuth(c *gin.Context) {
+
+	if config.Dev {
+		log.Println("DEV MODE LOGIN")
+		token, err := jwt.CreateToken(config.AkashaLearnUUID)
+		if err != nil {
+			log.Println(err)
+			c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+			c.Abort()
+			return
+		}
+
+		c.IndentedJSON(http.StatusOK, gin.H{"auth": token})
+		return
+	}
 
 	provider := c.Param("provider")
 

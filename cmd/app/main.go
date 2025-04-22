@@ -20,7 +20,12 @@ func main() {
 	db.InitDB(cfg)
 	ai.InitGeminiModel(cfg)
 	jwt.SetSecret(cfg)
-	handlers.NewAuth()
+
+	if !config.Dev {
+		handlers.NewAuth()
+	} else {
+		log.Println("DEV MODE")
+	}
 
 	router := gin.Default()
 	router.SetTrustedProxies([]string{})

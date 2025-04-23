@@ -51,6 +51,35 @@ func GetTopicProgress(uid uuid.UUID, tid uuid.UUID) (model.AlUserTopicProgress, 
 	return progress, err
 }
 
+type TopicMiniResult struct {
+	ID    uuid.UUID `json:"id"`
+	Title string    `json:"title"`
+	Emoji string    `json:"emoji"`
+}
+
+func GetTopicsRelatedToUser(uid uuid.UUID) ([]TopicMiniResult, error) {
+	stmt := `
+SELECT
+  t.id, t.title, t.emoji
+FROM
+  al_user_topic_progress as p
+INNER JOIN
+  al_topic as t
+ON
+  p.topic_id = t.id
+WHERE
+  p.user_id = ?
+;
+	`
+	var topics []TopicMiniResult
+	if err := db.DB.Raw(stmt, uid).Scan(&topics).Error; err != nil {
+		log.Println(err)
+		return topics, err
+	}
+
+	return topics, nil
+}
+
 func UpdateTopicProgress(prg *model.AlUserTopicProgress, newLesson int32) error {
 	return db.DB.Model(prg).Update("current_lesson", newLesson).Error
 }

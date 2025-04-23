@@ -256,3 +256,23 @@ func GetFullTopicDetails(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, topic)
 }
+
+func GetTopicsRelatedToUser(c *gin.Context) {
+	user_id, ok := c.Get("UUID")
+
+	if !ok {
+		log.Println("user_id not found")
+		c.Abort()
+		return
+	}
+
+	uId, _ := uuid.Parse(user_id.(string))
+	topics, err := services.GetTopicsRelatedToUser(uId)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, topics)
+}

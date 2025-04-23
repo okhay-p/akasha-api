@@ -14,6 +14,7 @@ func SetupTopicRoutes(router *gin.Engine) {
 		topicGroup.GET("/details/:id", handlers.GetFullTopicDetails)
 		topicGroup.GET("/progress/:id", handlers.FirstOrCreateTopicProgress)
 		topicGroup.PUT("/progress/:id/:order", handlers.UpdateTopicProgressCurrentLesson)
+		topicGroup.GET("/progress", handlers.GetTopicsRelatedToUser)
 		topicGroup.GET("/:id", handlers.GetTopicByUUID)
 	}
 }

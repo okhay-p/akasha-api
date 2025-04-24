@@ -115,6 +115,21 @@ func CreateTopic(c *gin.Context) {
 
 	}
 
+	var prg model.AlUserTopicProgress
+
+	prg.TopicID = topicId
+	prg.UserID = uuid
+	prg.CurrentLesson = 0
+
+	_, err = services.GetOrInsertTopicProgress(&prg)
+
+	if err != nil {
+		log.Println(err)
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
+		c.Abort()
+		return
+	}
+
 	c.IndentedJSON(http.StatusOK, gin.H{"message": topicId})
 
 }

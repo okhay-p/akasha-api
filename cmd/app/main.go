@@ -31,6 +31,7 @@ func main() {
 	router.SetTrustedProxies([]string{})
 	router.Use(middlewares.CORSMiddleware())
 	routes.SetupRouter(router)
+	routes.SetupFeedbackRoutes(router)
 
 	router.Use(middlewares.AuthMiddleware())
 	routes.SetupUserRoutes(router)

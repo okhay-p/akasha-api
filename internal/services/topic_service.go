@@ -84,6 +84,10 @@ func UpdateTopicProgress(prg *model.AlUserTopicProgress, newLesson int32) error 
 	return db.DB.Model(prg).Update("current_lesson", newLesson).Error
 }
 
+func DeleteTopicProgress(prg *model.AlUserTopicProgress) error {
+	return db.DB.Delete(prg).Error
+}
+
 func GetAllTopics() ([]model.AlTopic, error) {
 	var topics []model.AlTopic
 

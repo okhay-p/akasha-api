@@ -206,6 +206,37 @@ func UpdateTopicProgressCurrentLesson(c *gin.Context) {
 
 }
 
+func DeleteProgress(c *gin.Context) {
+	user_id, ok := c.Get("UUID")
+	if !ok {
+		log.Println("user_id not found")
+		c.Abort()
+		return
+	}
+
+	uId, err := uuid.Parse(user_id.(string))
+	id, err := uuid.Parse(c.Param("id"))
+
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		c.Abort()
+		log.Println("Missing IDs for deleting progress")
+		return
+	}
+
+	prg, err := services.GetTopicProgress(uId, id)
+	err = services.DeleteTopicProgress(&prg)
+	if err != nil {
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		log.Println(err)
+		return
+	}
+
+	c.Status(http.StatusNoContent)
+
+}
+
 func GetTopicsL1(c *gin.Context) {
 	topics, err := services.GetAllTopics()
 

@@ -108,7 +108,7 @@ func HandleOAuthCallback(c *gin.Context) {
 	}
 
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("token", token, 86400, "/", ".akashalearn.org", true, true)
+	c.SetCookie("token", token, 86400, "/", "akashalearn.org", true, true)
 	c.Redirect(http.StatusFound, "https://akashalearn.org/generate-lessons")
 }
 
@@ -149,7 +149,7 @@ func HandleOAuthLogout(c *gin.Context) {
 		Name:     "token",
 		Value:    "",
 		Path:     "/",
-		Domain:   ".akashalearn.org",
+		Domain:   "akashalearn.org",
 		Expires:  time.Unix(0, 0), // Set to Unix epoch (Jan 1, 1970) to expire immediately
 		MaxAge:   -1,              // Also set MaxAge for broader compatibility
 		Secure:   true,

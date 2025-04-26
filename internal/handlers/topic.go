@@ -45,7 +45,7 @@ func CreateTopic(c *gin.Context) {
 			c.Abort()
 			return
 		}
-
+		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 		c.Abort()
 		return

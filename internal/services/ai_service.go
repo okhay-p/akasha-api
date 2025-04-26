@@ -45,7 +45,7 @@ Content: %s
 
 Generate the main title for the content. preferrably a short title under 32 characters, hard limit is 64 characters.
 
-Give me the UTF-8 code an emoji that is related to the main title of the content.
+Give me an emoji that is related to the main title of the content.
 
 Generate 3 to 5 lessons based on the content length with the following structure: The lessons should be focused more on the theory aspect of the content.
     1. A title for the lesson (less than 64 characters)
@@ -58,7 +58,7 @@ Generate 3 to 5 lessons based on the content length with the following structure
 Format the response as a JSON including a message and array of lesson objects with the following structure: The message is "success" | "req_error: <relevant error message>"
 {
     "Message": message,
-    "Emoji" : <UTF-8>,
+    "Emoji" : 📔,
     "MainTitle": <MAIN_TITLE>,
     "Lessons": [
       {
@@ -103,8 +103,8 @@ Make sure the content is educational, engaging, and follows a logical progressio
 			}
 
 			if plan.Message != "success" {
-				fmt.Println(userContent)
-				fmt.Printf("  Error Message: %s\n", plan.Message)
+				log.Println(userContent)
+				log.Printf("  Error Message: %s\n", plan.Message)
 				return plan, errors.New(plan.Message)
 			}
 

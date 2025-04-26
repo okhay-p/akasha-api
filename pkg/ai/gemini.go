@@ -21,4 +21,6 @@ func InitGeminiModel(cfg config.Config) {
 	}
 
 	GeminiModel = client.GenerativeModel("gemini-2.0-flash")
+	// GeminiModel = client.GenerativeModel("gemini-2.5-flash-preview-04-17")
+
 }

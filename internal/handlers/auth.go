@@ -145,7 +145,15 @@ func HandleOAuth(c *gin.Context) {
 
 func HandleOAuthLogout(c *gin.Context) {
 
+	red, ok := c.GetQuery("redirect_uri")
+
+	if !ok {
+		red = "akashalearn.org"
+		log.Println("Error getting redirect_uri for logout")
+	}
+
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", "", -1, "/", "akashalearn.org", true, true)
-	c.Status(http.StatusOK)
+	c.Redirect(http.StatusFound, red)
+
 }

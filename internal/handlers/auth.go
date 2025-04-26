@@ -146,6 +146,6 @@ func HandleOAuth(c *gin.Context) {
 func HandleOAuthLogout(c *gin.Context) {
 
 	c.SetSameSite(http.SameSiteLaxMode)
-	c.SetCookie("token2", "", 86400, "/", "akashalearn.org", true, true)
-	c.Status(http.StatusNoContent)
+	c.SetCookie("token", "", -1, "/", "akashalearn.org", true, true)
+	c.Status(http.StatusOK)
 }

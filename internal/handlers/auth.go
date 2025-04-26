@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strings"
-	"time"
 
 	"akasha-api/internal/gothic"
 	"akasha-api/internal/model"
@@ -145,20 +144,8 @@ func HandleOAuth(c *gin.Context) {
 }
 
 func HandleOAuthLogout(c *gin.Context) {
-	cookie := &http.Cookie{
-		Name:     "token",
-		Value:    "",
-		Path:     "/",
-		Domain:   "akashalearn.org",
-		Expires:  time.Unix(0, 0), // Set to Unix epoch (Jan 1, 1970) to expire immediately
-		MaxAge:   -1,              // Also set MaxAge for broader compatibility
-		Secure:   true,
-		HttpOnly: true,
-		SameSite: http.SameSiteLaxMode, // Adjust as needed
-	}
 
-	// Set the cookie via the ResponseWriter
-	http.SetCookie(c.Writer, cookie)
-	c.Status(http.StatusNoContent)
+	c.SetSameSite(http.SameSiteLaxMode)
+	c.SetCookie("token2", "", 86400, "/", "akashalearn.org", true, true)
 	c.Status(http.StatusNoContent)
 }

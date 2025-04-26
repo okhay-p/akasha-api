@@ -45,7 +45,7 @@ Content: %s
 
 Generate the main title for the content. preferrably a short title under 32 characters, hard limit is 64 characters.
 
-Give me an emoji that is related to the main title of the content. Give me the UTF-8 code of the emoji
+Give me the UTF-8 code an emoji that is related to the main title of the content.
 
 Generate 3 to 5 lessons based on the content length with the following structure: The lessons should be focused more on the theory aspect of the content.
     1. A title for the lesson (less than 64 characters)
@@ -88,6 +88,9 @@ Make sure the content is educational, engaging, and follows a logical progressio
 		log.Println("Received an empty or invalid response from the API.")
 		return plan, err
 	}
+
+	// Log the raw response
+	// log.Println(resp.Candidates[0].Content.Parts[0])
 
 	// Iterate through parts (usually only one for JSON mode)
 	for _, part := range resp.Candidates[0].Content.Parts {

@@ -34,7 +34,7 @@ func NewAuth() {
 	store := sessions.NewCookieStore([]byte(key))
 	store.MaxAge(MaxAge)
 
-	store.Options.Domain = ".akashalearn.org"
+	store.Options.Domain = "akashalearn.org"
 	store.Options.Path = "/"
 	store.Options.HttpOnly = true
 	store.Options.Secure = os.Getenv("DEV") == "false"

@@ -154,6 +154,6 @@ func HandleOAuthLogout(c *gin.Context) {
 
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", "", -1, "/", "akashalearn.org", true, true)
-	c.Redirect(http.StatusFound, red)
+	c.Redirect(http.StatusFound, "https://"+red)
 
 }

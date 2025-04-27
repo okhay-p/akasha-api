@@ -1,6 +1,7 @@
 package services
 
 import (
+	"akasha-api/internal/req_structs"
 	"akasha-api/pkg/ai"
 	"encoding/json"
 	"errors"
@@ -32,51 +33,101 @@ type LessonPlan struct {
 	Lessons   []Lesson `json:"Lessons"`
 }
 
-func GenerateLessonPlan(userContent string) (LessonPlan, error) {
+func GenerateLessonPlan(req req_structs.GenerateTopicReqBody) (LessonPlan, error) {
 
 	var plan LessonPlan
+
+	var mode string
+
+	if req.OnlyContent {
+		mode = "strict"
+	} else {
+		mode = "explore"
+	}
 
 	ai.GeminiModel.ResponseMIMEType = "application/json"
 
 	prompt := fmt.Sprintf(`
-You are an expert educator. Create a structured learning plan based on the following text. Make sure the content is educational only. If it contains wrong information or inappropriate content respond with a short error message. The error message should be in a fun and informal tone, include emojis and last than 20 words. Refer to the response format.
+		You are an expert educator AI. Your task is to create a structured, theory-focused learning plan based on the provided text.
 
+**Input Parameters:**
 Content: %s
+Number Of Lessons: %d
+Mode: %s
 
-Generate the main title for the content. preferrably a short title under 32 characters, hard limit is 64 characters.
+**Instructions:**
 
-Give me an emoji that is related to the main title of the content.
+1.  **Analyze Input:** First, determine if the text is suitable for creating an educational plan.
+    * If the text is suitable, proceed to step 2.
+    * If the text is *unsuitable* (e.g., contains factually incorrect information, harmful/inappropriate content, is fundamentally non-educational like gibberish or ads, or is too trivial/empty), **identify the primary reason** for rejection. Then, **STOP** and respond *only* with the error JSON format specified below.
+2.  **Generate Title & Emoji:** If the text is suitable, generate:
+    * A concise 'MainTitle' for the overall topic (preferably under 32 characters, hard limit 64 characters).
+    * A relevant 'Emoji' representing the main title.
+3.  **Create Lessons:** (Only if input content is suitable)
+    * Generate exactly **%d** lessons based on the **Content**.
+    * Adjust the depth and breadth of each lesson appropriately to fit the total number requested and the amount of source material available in the **Content**. Avoid making lessons overly thin or repetitive if a high number is requested for short content.
+    * Ensure the lessons are ordered logically.
+    * **Apply Generation Mode (%s):**
+        * If **Mode** is "strict": Base the lesson Content paragraphs *exclusively* on the information present in the provided **Content**. Do not introduce external concepts or information not directly mentioned or clearly implied in the text.
+        * If **Mode** is "explore": Base the lesson Content primarily on the provided **Content**. However, you may *enrich* the explanation slightly with closely related foundational concepts, definitions, or brief, relevant examples *only if* they directly clarify or enhance the understanding of the topics *present in the source text*. Ensure the core focus remains tightly bound to the input text's subject matter and avoid introducing unrelated topics.
+    * Each lesson must include:
+        * 'Title': A short title (less than 64 characters).
+        * 'Objectives': 2-4 bullet points listing key learning goals for the lesson.
+        * 'Content': 2-3 paragraphs explaining the key theoretical concepts from the text related to the objectives. Use clear, concise language. Where appropriate and supported by the source text, briefly mention real-world relevance or examples to enhance engagement.
+        * 'Questions': 3 practice questions (Multiple Choice or True/False) with answers.
+            * Ensure each question directly assesses understanding of the key concepts or objectives presented *in that specific lesson's content*.
+            * For True/False questions, use 'Options: ["True", "False"]' and 'CorrectAnswer: 0' for True, '1' for False.
+            * For Multiple Choice, provide 3-4 plausible options including the correct one.
 
-Generate 3 to 5 lessons based on the content length with the following structure: The lessons should be focused more on the theory aspect of the content.
-    1. A title for the lesson (less than 64 characters)
-    2. Key learning objectives (2-4 bullet points)
-    3. Main content (2-3 paragraphs explaining the key concepts)
-    4. 3 practice questions with answers. Questions can be multiple choice or True/False
+4.  **Format Output:** Format the entire response as a single JSON object adhering *strictly* to the structure below.
 
-
-
-Format the response as a JSON including a message and array of lesson objects with the following structure: The message is "success" | "req_error: <relevant error message>"
+**JSON Output Format (Success):**
 {
-    "Message": message,
-    "Emoji" : 📔,
-    "MainTitle": <MAIN_TITLE>,
-    "Lessons": [
-      {
-        "Title": "Lesson title",
-        "Objectives": ["objective 1", "objective 2", "objective 3"],
-        "Content": ["paragraph 1", "paragraph 2"],
-        "Questions": [
-          {
-            "QuestionText": "Question text",
-            "Options": ["option A", "option B", "option C", "option D"],
-            "CorrectAnswer": 0
-          }
-        ]
-      }
-    ]
+  "Message": "success",
+  "Emoji": "<GENERATED_EMOJI>",
+  "MainTitle": "<GENERATED_MAIN_TITLE>",
+  "Lessons": [
+    {
+      "Title": "Lesson 1 title",
+      "Objectives": ["objective 1.1", "objective 1.2"],
+      "Content": ["paragraph 1 explaining concepts...", "paragraph 2 expanding on concepts..."],
+      "Questions": [
+        {
+          "QuestionText": "Question 1 text?",
+          "Options": ["Option A", "Option B", "Option C"],
+          "CorrectAnswer": 0 // Index of the correct option
+        },
+        {
+          "QuestionText": "True or False: Statement?",
+          "Options": ["True", "False"],
+          "CorrectAnswer": 1 // Index 1 = False
+        },
+        // ... more questions
+      ]
+    },
+    // ... more lessons (total 3-5)
+  ]
 }
-Make sure the content is educational, engaging, and follows a logical progression.
-		`, userContent)
+
+**JSON Output Format (Error):**
+{
+  "Message": "<BEGIN_WITH_req_error:_THEN_AI_GENERATES_ERROR_MESSAGE>",
+  "Emoji": null,
+  "MainTitle": null,
+  "Lessons": []
+}
+
+**Instructions for Generating the Error Message (if input is unsuitable):**
+* The 'Message' field in the error JSON must start *exactly* with 'req_error: '.
+* Following 'req_error: ', generate a *unique and creative* error message.
+* This message should be:
+    * Fun and informal in tone.
+    * Include a relevant emoji (related to the error type if possible).
+    * Briefly and playfully *hint* at the reason the input was rejected (e.g., "This looks like gibberish!", "Can't make lessons from that!", "Needs more educational spice!").
+    * Strictly less than 20 words (including the emoji).
+
+**(Self-Correction Note for AI):** Remember to first analyze *why* the content is unsuitable before crafting the dynamic error message for the 'Message' field in the error JSON. Adhere strictly to all constraints for the error message (prefix, tone, length, emoji, hinting at reason).
+		`, req.Content, req.NumOfLessons, mode, req.NumOfLessons, mode)
 
 	resp, err := ai.GeminiModel.GenerateContent(ai.Ctx, genai.Text(prompt))
 	if err != nil {
@@ -103,7 +154,7 @@ Make sure the content is educational, engaging, and follows a logical progressio
 			}
 
 			if plan.Message != "success" {
-				log.Println(userContent)
+				log.Println(req.Content)
 				log.Printf("  Error Message: %s\n", plan.Message)
 				return plan, errors.New(plan.Message)
 			}

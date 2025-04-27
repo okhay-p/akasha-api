@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"akasha-api/internal/model"
+	"akasha-api/internal/req_structs"
 	"akasha-api/internal/services"
 	"log"
 	"net/http"
@@ -11,10 +12,6 @@ import (
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
-
-type inputContent struct {
-	Content string `json:"content"`
-}
 
 func CreateTopic(c *gin.Context) {
 	user_id, ok := c.Get("UUID")
@@ -28,7 +25,7 @@ func CreateTopic(c *gin.Context) {
 	uuid, err := uuid.Parse(user_id.(string))
 
 	// TODO: Might need validation
-	var newInput inputContent
+	var newInput req_structs.GenerateTopicReqBody
 	if err := c.BindJSON(&newInput); err != nil {
 		log.Println(err)
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
@@ -37,7 +34,7 @@ func CreateTopic(c *gin.Context) {
 	}
 
 	// Get lesson plan from AI
-	lessonPlan, err := services.GenerateLessonPlan(newInput.Content)
+	lessonPlan, err := services.GenerateLessonPlan(newInput)
 	if err != nil {
 
 		if len(err.Error()) > 11 && err.Error()[:9] == "req_error" {
@@ -60,7 +57,7 @@ func CreateTopic(c *gin.Context) {
 	topic.Title = lessonPlan.MainTitle
 	topic.Emoji = lessonPlan.Emoji
 	topic.CreatedBy = user.Username
-	topic.IsPublic = true
+	topic.IsPublic = newInput.IsPublic
 	topic.StatusID = 1
 
 	topicId, err := services.InsertTopic(&topic)

@@ -4,8 +4,10 @@ import (
 	"akasha-api/internal/model"
 	"akasha-api/internal/req_structs"
 	"akasha-api/internal/services"
+	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -26,11 +28,48 @@ func CreateTopic(c *gin.Context) {
 
 	// TODO: Might need validation
 	var newInput req_structs.GenerateTopicReqBody
-	if err := c.BindJSON(&newInput); err != nil {
+
+	content := c.PostForm("content")
+	isPublicStr := c.PostForm("is_public")       // Gin returns strings, so handle bool carefully
+	onlyContentStr := c.PostForm("only_content") // Same as above
+	numOfLessonsStr := c.PostForm("num_of_lessons")
+
+	// Handle boolean values
+	isPublic := false
+	if isPublicStr == "true" {
+		isPublic = true
+	}
+
+	onlyContent := false
+	if onlyContentStr == "true" {
+		onlyContent = true
+	}
+
+	//Handle integer value
+	numOfLessons := 0
+	_, err = fmt.Sscan(numOfLessonsStr, &numOfLessons)
+	if err != nil {
+		log.Printf("Error converting num_of_lessons to integer: %s\n", err)
+		numOfLessons = 3 // Provide a default value or handle the error as needed
+	}
+	newInput.Content = content
+	newInput.IsPublic = isPublic
+	newInput.OnlyContent = onlyContent
+	newInput.NumOfLessons = uint8(numOfLessons)
+
+	file, err := c.FormFile("attachment")
+	if err != nil {
 		log.Println(err)
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
-		c.Abort()
-		return
+	}
+	var dst string
+	if file != nil {
+
+		dst = "./tmp/" + file.Filename // Adjust path as needed
+		if err := c.SaveUploadedFile(file, dst); err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
+			return
+		}
+		defer os.Remove(dst)
 	}
 
 	// Get lesson plan from AI

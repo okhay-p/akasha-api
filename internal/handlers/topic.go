@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -61,19 +60,14 @@ func CreateTopic(c *gin.Context) {
 	if err != nil {
 		log.Println(err)
 	}
-	var dst string
-	if file != nil {
-
-		dst = "./tmp/" + file.Filename // Adjust path as needed
-		if err := c.SaveUploadedFile(file, dst); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to save uploaded file"})
-			return
-		}
-		defer os.Remove(dst)
+	if file != nil && file.Size > 15*1024*1024 {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{"message": "File size too large"})
+		c.Abort()
+		return
 	}
 
 	// Get lesson plan from AI
-	lessonPlan, err := services.GenerateLessonPlan(newInput)
+	lessonPlan, err := services.GenerateLessonPlan(newInput, file)
 	if err != nil {
 
 		if len(err.Error()) > 11 && err.Error()[:9] == "req_error" {

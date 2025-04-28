@@ -102,7 +102,7 @@ func GetAllTopics() ([]model.AlTopic, error) {
 func GetAllPublicTopics() ([]model.AlTopic, error) {
 	var topics []model.AlTopic
 
-	if err := db.DB.Where("is_public = ?", "t").Find(&topics).Error; err != nil {
+	if err := db.DB.Where("is_public = ?", "t").Order("created_at desc").Find(&topics).Error; err != nil {
 		return topics, err
 	}
 
@@ -112,7 +112,7 @@ func GetAllPublicTopics() ([]model.AlTopic, error) {
 func GetAllUserGeneratedTopics(username string) ([]model.AlTopic, error) {
 	var topics []model.AlTopic
 
-	if err := db.DB.Where("created_by = ?", username).Find(&topics).Error; err != nil && err != gorm.ErrRecordNotFound {
+	if err := db.DB.Where("created_by = ?", username).Order("created_at desc").Find(&topics).Error; err != nil && err != gorm.ErrRecordNotFound {
 		return topics, err
 	}
 	return topics, nil

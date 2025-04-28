@@ -268,7 +268,20 @@ func DeleteProgress(c *gin.Context) {
 }
 
 func GetTopicsL1(c *gin.Context) {
-	topics, err := services.GetAllTopics()
+
+	user_id, ok := c.Get("UUID")
+
+	if !ok {
+		log.Println("user_id not found")
+		c.Abort()
+		return
+	}
+
+	uId, err := uuid.Parse(user_id.(string))
+	user, err := services.GetUserByUUID(uId)
+
+	topics, err := services.GetAllPublicTopics()
+	userTopics, err := services.GetAllUserGeneratedTopics(user.Username)
 
 	if err != nil {
 		c.Status(http.StatusInternalServerError)
@@ -276,7 +289,7 @@ func GetTopicsL1(c *gin.Context) {
 		return
 	}
 
-	c.IndentedJSON(http.StatusOK, topics)
+	c.IndentedJSON(http.StatusOK, gin.H{"public_topics": topics, "user_topics": userTopics})
 
 }
 

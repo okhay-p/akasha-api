@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 func InsertTopic(topic *model.AlTopic) (uuid.UUID, error) {
@@ -95,6 +96,25 @@ func GetAllTopics() ([]model.AlTopic, error) {
 		return topics, err
 	}
 
+	return topics, nil
+}
+
+func GetAllPublicTopics() ([]model.AlTopic, error) {
+	var topics []model.AlTopic
+
+	if err := db.DB.Where("is_public = ?", "t").Find(&topics).Error; err != nil {
+		return topics, err
+	}
+
+	return topics, nil
+}
+
+func GetAllUserGeneratedTopics(username string) ([]model.AlTopic, error) {
+	var topics []model.AlTopic
+
+	if err := db.DB.Where("created_by = ?", username).Find(&topics).Error; err != nil && err != gorm.ErrRecordNotFound {
+		return topics, err
+	}
 	return topics, nil
 }
 

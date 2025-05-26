@@ -365,3 +365,57 @@ func GetTopicsRelatedToUser(c *gin.Context) {
 
 	c.IndentedJSON(http.StatusOK, topics)
 }
+
+func UpdateTopicVisibility(c *gin.Context){
+	user_id, ok := c.Get("UUID")
+
+	if !ok {
+		log.Println("user_id not found")
+		c.Abort()
+		return
+	}
+	uId, _ := uuid.Parse(user_id.(string))
+
+	id, err := uuid.Parse(c.Param("id"))
+	visibility  := c.Param("visibility")
+	if err != nil {
+		log.Println(c.Param("id"))
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+		return
+	}
+
+	topic, err := services.GetTopicByUUID(id)
+	if err != nil {
+		log.Println("Error getting topic:")
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+	}
+
+	user, err := services.GetUserByUUID(uId)
+	if err != nil {
+		log.Println("Error getting user:")
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+	}
+
+	if user.Username != topic.CreatedBy {
+		log.Println("Unauthorized visibility edit")
+		c.IndentedJSON(http.StatusUnauthorized, gin.H{"message": "User is not the owner of the topic"} )
+		c.Abort()
+	}
+
+	topic.IsPublic = visibility == "public"
+	err = services.UpdateTopic(&topic)
+	if err != nil {
+		log.Println("Error updating visibility")
+		log.Println(err)
+		c.Status(http.StatusInternalServerError)
+		c.Abort()
+	}
+
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "Visibility updated successfully"} )
+}

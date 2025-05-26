@@ -128,6 +128,10 @@ func GetTopicByUUID(uuid uuid.UUID) (model.AlTopic, error) {
 	return topic, nil
 }
 
+func UpdateTopic(topic *model.AlTopic) error {
+	return db.DB.Save(topic).Error
+}
+
 // Question struct to represent a single question
 type TopicQuestion struct {
 	QuestionID    string   `json:"question_id"`
